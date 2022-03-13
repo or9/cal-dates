@@ -32,6 +32,8 @@ const mimeTypes = {
 	".webmanifest": "application/manifest+json",
 };
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
+
 // Because modules don't have __dirname injected
 // const __dirname = dirname(new URL(import.meta.url).pathname);
 
@@ -68,14 +70,21 @@ function apiRequestHandler(req, res) {
 
 	console.log("requestPath???", requestPath);
 	const routes = {
-		"/gm": "https://that-one-request-path.exe?",
+		"/gm": "https://google.com",
 	};
 
 	const url = routes[requestPath];
 	
 	console.log("proxying request to ", url);
 
-	get(url, (error, proxiedResponse) => {
+	get(url, (proxiedResponse) => {
+		let data = ``;
+		
+		proxiedResponse.on("data", (d) => {
+			data += d;
+			console.log("proxied response data: ", data);
+		});
+		
 		return proxiedResponse.pipe(res);
 	})
 	.on("error", handleApiRequestError)
