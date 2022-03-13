@@ -51,7 +51,7 @@ process.on(`SIGTERM`, shutdown);
 process.on(`SIGINT`, shutdown);
 process.on(`uncaughtException`, shutdown);
 
-function requestHandler (req, res) {
+function requestHandler(req, res) {
 	console.info(`~requestHandler `, req.url);
 
 	if (req.url.startsWith("/api")) {
@@ -62,14 +62,29 @@ function requestHandler (req, res) {
 }
 
 function apiRequestHandler(req, res) {
-	const url = "https://gm.api.whatever.ok.exe?yes";
+	const requestPath = req.url
+		.replace(/\/{2,}/g, "/")
+		.replace("/api", "");
 
-	req
-		.pipe(request(url))
-		.pipe(res);
+	console.log("requestPath???", requestPath);
+	const routes = {
+		"/gm": "https://that-one-request-path.exe?",
+	};
+
+	const url = routes[requestPath];
+	
+	console.log("proxying request to ", url);
+
+	get(url, (error, proxiedResponse) => {
+		return proxiedResponse.pipe(res);
+	})
+	.on("error", handleApiRequestError)
 
 	function handleApiRequestError(error) {
 		console.error("#handleApiRequestError", error);
+		res.writeHead(500, { "content-type": "application/json" });
+		res.write(error.toString());
+		res.end();
 	}
 }
 

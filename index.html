@@ -163,7 +163,7 @@
 
 		function handleResponse(response) {
 			if (!response.ok) {
-				return Promise.reject(response.text());
+				return response.text().then(text => Promise.reject(text))
 			}
 
 			return response.text();
