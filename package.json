@@ -2,9 +2,11 @@
   "name": "cal-dates",
   "version": "0.0.1",
   "description": "get dates",
-  "main": "index.js",
+  "main": "server.mjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test.js",
+    "build": "echo 'TODO: perform build.'",
+    "start": "node ./test-server.mjs"
   },
   "repository": {
     "type": "git",
@@ -20,5 +22,9 @@
   "bugs": {
     "url": "https://github.com/or9/cal-dates/issues"
   },
-  "homepage": "https://github.com/or9/cal-dates#readme"
+  "homepage": "https://github.com/or9/cal-dates#readme",
+  "defaultConfig": {
+    "TEST_SERVER_PORT": 8090,
+    "TEST_SERVER_ADDR": "0.0.0.0"
+  }
 }

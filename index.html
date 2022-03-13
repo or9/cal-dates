@@ -125,6 +125,12 @@
 	<arm-router home="/home">
 		<section id="page_home" class="content router-page">
 			<h2>Home Section</h2>
+			<input type="text" id="apiRequestPath" value="" placeholder="/api/path?query" />
+			<input type="button" id="sendApiRequest" value="Send" />
+			<fieldset>
+				<legend>Response</legend>
+				<pre id="apiResponseText"></pre>
+			</fieldset>
 		</section>
 		<section id="page_idk1" class="content router-page">
 			<h2>IDK1 Section</h2>
@@ -137,6 +143,44 @@
 	<footer id="footer" class="template--section section--footer">
 		<span id="footerCopyright"><!-- this content will be populated by JS --></span>
 	</footer>
+
+	<script type="module">
+		const sendRequestBtn = document.querySelector("#sendApiRequest");
+		const apiRequestPathField = document.querySelector("#apiRequestPath");
+		const apiResponseTextContainer = document.querySelector("#apiResponseText");
+
+		sendRequestBtn.onclick = btnClick;
+
+		function btnClick(event) {
+			console.log("btn clicked", apiRequestPathField.value);
+			apiResponseTextContainer.innerHTML = "Loading…";
+
+			return fetch(`/api/${apiRequestPathField.value.replace("/^\/api\//", "")}`)
+				.then(handleResponse)
+				.then(parseResponse)
+				.catch(handleRequestFailure);
+		}
+
+		function handleResponse(response) {
+			if (!response.ok) {
+				return Promise.reject(response.text());
+			}
+
+			return response.text();
+		}
+
+		function parseResponse(responseText) {
+			const parser = new DOMParser();
+			const parsedResponse = parser.parseFromString(responseText, "text/html");
+
+			apiResponseTextContainer.innerHTML = parsedResponse;
+		}
+
+		function handleRequestFailure(error) {
+			apiResponseTextContainer.innerHTML = error;
+			console.warn("API Request failed", error);
+		}
+	</script>
 
 	<script type="module">
 		document

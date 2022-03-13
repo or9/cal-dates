@@ -55,13 +55,13 @@ function requestHandler (req, res) {
 	console.info(`~requestHandler `, req.url);
 
 	if (req.url.startsWith("/api")) {
-		return apiRequestHandler(req);
+		return apiRequestHandler(req, res);
 	} else {
-		return staticRequesthandler(req);
+		return staticRequestHandler(req, res);
 	}
 }
 
-function apiRequestHandler(req) {
+function apiRequestHandler(req, res) {
 	const url = "https://gm.api.whatever.ok.exe?yes";
 
 	req
@@ -74,7 +74,7 @@ function apiRequestHandler(req) {
 }
 
 
-function staticRequestHandler(req) {
+function staticRequestHandler(req, res) {
 	if (req.url === "/" || req.url.startsWith("/index.htm")) {
 		console.info("Serve index");
 		// send index.html
