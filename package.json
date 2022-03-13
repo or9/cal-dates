@@ -6,7 +6,7 @@
   "scripts": {
     "test": "node test.js",
     "build": "echo 'TODO: perform build.'",
-    "start": "node ./test-server.mjs"
+    "start": "node ./server.mjs"
   },
   "repository": {
     "type": "git",
