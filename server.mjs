@@ -43,11 +43,21 @@ const config = {
 	...process.env,
 };
 
+const routes = {
+	"/gm": "https://google.com",
+	...config.routes,
+};
+
 const httpServer = createServer(requestHandler)
 	.listen(config.TEST_SERVER_PORT, config.TEST_SERVER_ADDR, listeningHandler)
 	.on("error", (err) => {
 		console.error("Caught error", err);
 	});
+
+export default {
+	httpServer,
+	port: config.TEST_SERVER_PORT,
+};
 
 process.on(`SIGTERM`, shutdown);
 process.on(`SIGINT`, shutdown);
@@ -69,25 +79,21 @@ function apiRequestHandler(req, res) {
 		.replace("/api", "");
 
 	console.log("requestPath???", requestPath);
-	const routes = {
-		"/gm": "https://google.com",
-	};
 
 	const url = routes[requestPath];
 	
 	console.log("proxying request to ", url);
 
-	get(url, (proxiedResponse) => {
+	return void get(url, (proxiedResponse) => {
 		let data = ``;
 		
 		proxiedResponse.on("data", (d) => {
 			data += d;
-			console.log("proxied response data: ", data);
 		});
 		
 		return proxiedResponse.pipe(res);
 	})
-	.on("error", handleApiRequestError)
+	.on("error", handleApiRequestError);
 
 	function handleApiRequestError(error) {
 		console.error("#handleApiRequestError", error);

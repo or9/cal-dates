@@ -69,11 +69,12 @@ export default class ArmRouterElement extends HTMLElement {
 
 		if (!window.location.hash) {
 			window.location.hash = this.homePage;
-		}
+		}	
 	}
 
 	connectedCallback() {
 		window.addEventListener("hashchange", this.windowHashChanged.bind(this), false);
+		this.selectAnchor(window.location.hash.replace(this.startingHashSlashRegExp, ""));
 	}
 
 	disconnectedCallback() {
@@ -113,10 +114,26 @@ export default class ArmRouterElement extends HTMLElement {
 		// Hide previously displayed page
 		const oldPageId = this.getHash(oldUrl);
 		this.hidePage(oldPageId);
+		this.unselectAnchor(oldPageId);
 
 		// Show relevant content
 		const newPageId = this.getHash(newUrl);
 		this.showPage(newPageId);
+		this.selectAnchor(newPageId);
+	}
+
+	unselectAnchor(id) {
+		const aEl = document.querySelector(`#anchor_${id}`);
+		if (!aEl) return;
+
+		return void aEl.classList.remove("page--current");
+	}
+
+	selectAnchor(id) {
+		const aEl = document.querySelector(`#anchor_${id}`);
+		if (!aEl) return;
+
+		return void aEl.classList.add("page--current");
 	}
 
 	hidePage(id) {
