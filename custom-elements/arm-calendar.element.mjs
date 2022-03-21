@@ -1,8 +1,6 @@
 export default class ArmCalendarElement extends HTMLElement {
 	constructor() {
 		super();
-
-		this.constructor.createFullCalendarScriptElement();
 		
 		// Reflect attributes to properties
 		this.constructor.observedAttributes.forEach((attr) => {
@@ -15,10 +13,78 @@ export default class ArmCalendarElement extends HTMLElement {
 		
 		this.attachShadow({ mode: "open" });
 		this.shadowRoot.appendChild(this.constructor.template.content.cloneNode(true));
-
-		const calendarEl = this.shadowRoot.getElementById("calendar");
 		
-		this.calendar = new FullCalendar.Calendar(calendarEl, {
+		this.constructor.createFullCalendarScriptElement()
+			.then(() => {
+				const calendarEl = this.shadowRoot.getElementById("calendar");
+				this.calendar = new FullCalendar.Calendar(calendarEl, this.constructor.defaultCalendarOptions);
+			})
+			.catch((err) => {
+				console.error("Error instantiating calendar");
+			});
+	}
+
+	get calendarOptions() {
+		return this.constructor.observedAttributes.reduce((current, next) => {
+			current[next] = this.getAttribute(next);
+
+			return current;
+		}, {});
+	}
+
+	static get attributeMap() {
+		return {
+
+		};
+	}
+
+	static createFullCalendarScriptElement() {
+		return new Promise(loadScriptEl);
+
+		function loadScriptEl(resolve, reject) {
+			// Only load fullcalendar script once
+			if (document.getElementById("fullcalendar")) return;
+
+			// If fullcalendar main script doesn't exist, create it
+			const scriptEl = document.createElement("script");
+			scriptEl.src = "/node_modules/fullcalendar/main.js";
+			scriptEl.id = "fullcalendar";
+			scriptEl.onload = resolve;
+			scriptEl.onerror = reject;
+
+			document.head.appendChild(scriptEl);
+		}
+	}
+
+	connectedCallback() {
+		renderCalendar.call(this, 0);
+
+		function renderCalendar(tryNum) {
+			if (!!this.calendar) {
+				this.calendar.render();
+			} else {
+				const tryTimeout = (tryNum + 1) * 10;
+				setTimeout(renderCalendar.bind(this, tryTimeout), tryTimeout);
+			}
+		}
+	}
+
+	disconnectedCallback() {
+		this.calendar.destroy();
+	}
+
+	adoptedCallback() {
+
+	}
+
+	attributeChangedCallback(name, oldVal, newVal) {
+		console.debug("attributeChangedCallback name: ", name, "oldVal: ", oldVal, "newVal: ", newVal);
+		
+		this[name] = newVal;
+	}
+
+	static get defaultCalendarOptions() {
+		return {
 			initialView: "dayGridMonth",
 			headerToolbar: {
 				start: "title",
@@ -69,51 +135,7 @@ export default class ArmCalendarElement extends HTMLElement {
 				},
 			}
 			// ...this.calendarOptions,
-		});
-	}
-
-	get calendarOptions() {
-		return this.constructor.observedAttributes.reduce((current, next) => {
-			current[next] = this.getAttribute(next);
-
-			return current;
-		}, {});
-	}
-
-	static get attributeMap() {
-		return {
-
 		};
-	}
-
-	static createFullCalendarScriptElement() {
-		// Only load fullcalendar script once
-		if (document.getElementById("fullcalendar")) return;
-
-		// If fullcalendar main script doesn't exist, create it
-		const scriptEl = document.createElement("script");
-		scriptEl.src = "/node_modules/fullcalendar/main.js";
-		scriptEl.id = "fullcalendar";
-
-		document.head.appendChild(scriptEl);
-	}
-
-	connectedCallback() {
-		this.calendar.render();
-	}
-
-	disconnectedCallback() {
-		this.calendar.destroy();
-	}
-
-	adoptedCallback() {
-
-	}
-
-	attributeChangedCallback(name, oldVal, newVal) {
-		console.debug("attributeChangedCallback name: ", name, "oldVal: ", oldVal, "newVal: ", newVal);
-		
-		this[name] = newVal;
 	}
 
 	static get constant() {
