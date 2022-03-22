@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+// #!/usr/bin/env node
 
 import {
 	createServer,
@@ -12,7 +12,16 @@ import {
 import {
 	resolve,
 	extname,
+	join,
+	dirname,
 } from "path";
+
+import log from "electron-log";
+
+// Because modules don't have __dirname injected
+const __dirname = dirname(new URL(import.meta.url).pathname);
+
+log.transports.file.resolvePath = () => join(__dirname, 'logs/server.log');
 
 const mimeTypes = {
 	".html": "text/html",
@@ -32,26 +41,22 @@ const mimeTypes = {
 	".webmanifest": "application/manifest+json",
 };
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
+// process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 
-// Because modules don't have __dirname injected
-// const __dirname = dirname(new URL(import.meta.url).pathname);
-
-const { defaultConfig } = JSON.parse(readFileSync(`./package.json`));
+const { defaultConfig } = JSON.parse(readFileSync(`${__dirname}/package.json`));
 const config = {
 	...defaultConfig,
 	...process.env,
-};
-
-const routes = {
-	"/gm": "https://google.com",
-	...config.routes,
+	routes: {
+		"/gm": "https://google.com",
+		...defaultConfig.routes,
+	}
 };
 
 const httpServer = createServer(requestHandler)
 	.listen(config.TEST_SERVER_PORT, config.TEST_SERVER_ADDR, listeningHandler)
 	.on("error", (err) => {
-		console.error("Caught error", err);
+		log.error("Caught error", err);
 	});
 
 export default {
@@ -64,7 +69,7 @@ process.on(`SIGINT`, shutdown);
 process.on(`uncaughtException`, shutdown);
 
 function requestHandler(req, res) {
-	console.info(`~requestHandler `, req.url);
+	log.info(`~requestHandler `, req.url);
 
 	if (req.url.startsWith("/api")) {
 		return apiRequestHandler(req, res);
@@ -78,11 +83,11 @@ function apiRequestHandler(req, res) {
 		.replace(/\/{2,}/g, "/")
 		.replace("/api", "");
 
-	console.log("requestPath???", requestPath);
+	log.info("requestPath???", requestPath);
 
-	const url = routes[requestPath];
+	const url = config.routes[requestPath];
 	
-	console.log("proxying request to ", url);
+	log.info("proxying request to ", url);
 
 	return void get(url, (proxiedResponse) => {
 		let data = ``;
@@ -96,7 +101,7 @@ function apiRequestHandler(req, res) {
 	.on("error", handleApiRequestError);
 
 	function handleApiRequestError(error) {
-		console.error("#handleApiRequestError", error);
+		log.error("#handleApiRequestError", error);
 		res.writeHead(500, { "content-type": "application/json" });
 		res.write(error.toString());
 		res.end();
@@ -106,19 +111,19 @@ function apiRequestHandler(req, res) {
 
 function staticRequestHandler(req, res) {
 	if (req.url === "/" || req.url.startsWith("/index.htm")) {
-		console.info("Serve index");
+		log.info("Serve index");
 		// send index.html
 		res.writeHead(200, { "content-type": "text/html" });
 
-		createReadStream(resolve("./", "index.html"))
+		createReadStream(resolve(__dirname, "index.html"))
 			.on("error", requestErrorHandler)
 			.pipe(res);
 	} else {
-		console.info("Serve other file");
+		log.info("Serve other file");
 
 		const path = req.url.replace(/^\//, "");
 		const extension = extname(req.url);
-		console.log("extension???", extension);
+		log.info("extension???", extension);
 
 		res.writeHead(200, { "content-type": mimeTypes[extension] });
 
@@ -127,13 +132,13 @@ function staticRequestHandler(req, res) {
 			return res.end();
 		}
 
-		createReadStream(resolve(path))
+		createReadStream(resolve(`${__dirname}/${path}`))
 			.on("error", requestErrorHandler)
 			.pipe(res);
 	}
 
 	function requestErrorHandler (err) {
-		console.error("Caught error handling request", err);
+		log.error("Caught error handling request", err);
 		if (err.code === "ENOENT") {
 			res
 				.writeHead(404)
@@ -147,17 +152,17 @@ function staticRequestHandler(req, res) {
 }
 
 function listeningHandler () {
-	console.info(`Server listening ${config.TEST_SERVER_ADDR}:${config.TEST_SERVER_PORT}`);
+	log.info(`Server listening ${config.TEST_SERVER_ADDR}:${config.TEST_SERVER_PORT}`);
 }
 
 function shutdown (...args) {
 	httpServer.close();
 
 	if (args[1] === "uncaughtException") {
-		console.error(args[0]);
-		process.exit(1);
+		log.error(args[0]);
+		// process.exit(1);
 	} else {
-		console.info(args[0]);
-		process.exit(0);
+		log.info(args[0]);
+		// process.exit(0);
 	}
 }

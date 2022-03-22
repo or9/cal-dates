@@ -1,75 +1,87 @@
 {
-  "name": "cal-dates",
-  "version": "0.0.1",
-  "description": "get dates",
-  "main": "main.js",
-  "scripts": {
-    "test": "echo 'test not defined yet.'",
-    "start:webapp": "node server.js",
-    "start": "electron-forge start",
-    "package": "electron-forge package",
-    "configure": "electron-forge import",
-    "make": "electron-forge make"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/or9/cal-dates.git"
-  },
-  "keywords": [
-    "nodejs",
-    "javascript",
-    "dates"
-  ],
-  "author": "",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/or9/cal-dates/issues"
-  },
-  "homepage": "https://github.com/or9/cal-dates#readme",
-  "defaultConfig": {
-    "TEST_SERVER_PORT": 8090,
-    "TEST_SERVER_ADDR": "0.0.0.0",
-    "routes": {
-      "/myroute": "http://localhost:8090/testfile"
-    }
-  },
-  "dependencies": {
-    "electron-squirrel-startup": "^1.0.0",
-    "fullcalendar": "^5.10.2"
-  },
-  "devDependencies": {
-    "@electron-forge/cli": "^6.0.0-beta.63",
-    "@electron-forge/maker-deb": "^6.0.0-beta.63",
-    "@electron-forge/maker-rpm": "^6.0.0-beta.63",
-    "@electron-forge/maker-squirrel": "^6.0.0-beta.63",
-    "@electron-forge/maker-zip": "^6.0.0-beta.63",
-    "electron": "^17.1.2"
-  },
-  "config": {
-    "forge": {
-      "packagerConfig": {},
-      "makers": [
-        {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {
-            "name": "cal_dates"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-zip",
-          "platforms": [
-            "darwin"
-          ]
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {}
-        }
-      ]
-    }
-  }
+	"name": "cal-dates",
+	"version": "0.0.1",
+	"description": "get dates",
+	"main": "main.js",
+	"scripts": {
+		"test": "echo 'test not defined yet.'",
+		"start:webapp": "node server.js",
+		"start": "electron-forge start",
+		"package": "electron-forge package",
+		"configure": "electron-forge import",
+		"make": "electron-forge make"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+ssh://git@github.com/or9/cal-dates.git"
+	},
+	"keywords": [
+		"nodejs",
+		"javascript",
+		"dates"
+	],
+	"author": "",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/or9/cal-dates/issues"
+	},
+	"homepage": "https://github.com/or9/cal-dates#readme",
+	"defaultConfig": {
+		"TEST_SERVER_PORT": 8090,
+		"TEST_SERVER_ADDR": "0.0.0.0",
+		"routes": {
+			"/myroute": "http://localhost:8090/testfile"
+		}
+	},
+	"dependencies": {
+		"electron-log": "^4.4.6",
+		"electron-squirrel-startup": "^1.0.0",
+		"fullcalendar": "^5.10.2"
+	},
+	"devDependencies": {
+		"@electron-forge/cli": "^6.0.0-beta.63",
+		"@electron-forge/maker-deb": "^6.0.0-beta.63",
+		"@electron-forge/maker-dmg": "^6.0.0-beta.63",
+		"@electron-forge/maker-rpm": "^6.0.0-beta.63",
+		"@electron-forge/maker-squirrel": "^6.0.0-beta.63",
+		"@electron-forge/maker-zip": "^6.0.0-beta.63",
+		"electron": "^17.1.2"
+	},
+	"config": {
+		"forge": {
+			"packagerConfig": {},
+			"makers": [
+				{
+					"name": "@electron-forge/maker-squirrel",
+					"config": {
+						"name": "cal_dates"
+					}
+				},
+				{
+					"name": "@electron-forge/maker-dmg",
+					"config": {
+						"background": "",
+						"format": "ULFO"
+					}
+				},
+				{
+					"name": "@electron-forge/maker-zip",
+					"platforms": [
+						"darwin"
+					],
+					"runtimeArgs": [
+						"--no-sandbox"
+					]
+				},
+				{
+					"name": "@electron-forge/maker-deb",
+					"config": {}
+				},
+				{
+					"name": "@electron-forge/maker-rpm",
+					"config": {}
+				}
+			]
+		}
+	}
 }

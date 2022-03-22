@@ -1,46 +1,46 @@
-const {
-	contextBridge,
-	ipcRenderer,
-} = require('electron');
+// const {
+// 	contextBridge,
+// 	ipcRenderer,
+// } = require('electron');
 const pkg = require("./package.json");
 
 window.addEventListener('DOMContentLoaded', domContentLoaded);
 
-setupContextBridge();
+// setupContextBridge();
 
-function setupContextBridge() {
-	contextBridge.exposeInMainWorld("appApi", {
-		proxyRequest,
-	});
+// function setupContextBridge() {
+// 	contextBridge.exposeInMainWorld("appApi", {
+// 		proxyRequest,
+// 	});
 
-	function proxyRequest(options = {}) {
-		const requestOptions = getRequestOptions(options);
+// 	function proxyRequest(options = {}) {
+// 		const requestOptions = getRequestOptions(options);
 
-		ipcRenderer.send("proxyRequest", requestOptions);
+// 		ipcRenderer.send("proxyRequest", requestOptions);
 
-		function getRequestOptions(requestOptions = {}) {
-			if (typeof requestOptions === "string") {
-				requestOptions = {
-					url: requestOptions,
-				};
-			}
+// 		function getRequestOptions(requestOptions = {}) {
+// 			if (typeof requestOptions === "string") {
+// 				requestOptions = {
+// 					url: requestOptions,
+// 				};
+// 			}
 
-			return {
-				...getDefaultRequestOptions(),
-				...requestOptions,
-			};
-		}
+// 			return {
+// 				...getDefaultRequestOptions(),
+// 				...requestOptions,
+// 			};
+// 		}
 
-		function getDefaultRequestOptions() {
-			return {
-				method: "GET",
-				port: 443,
-				protocol: "https",
-				path: "/",
-			};
-		}
-	}
-}
+// 		function getDefaultRequestOptions() {
+// 			return {
+// 				method: "GET",
+// 				port: 443,
+// 				protocol: "https",
+// 				path: "/",
+// 			};
+// 		}
+// 	}
+// }
 
 function domContentLoaded() {
 	replaceText(`app-version`, pkg.version);
